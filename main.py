@@ -20,7 +20,7 @@ def main():
 
     # list = ["dataset/Asteroid_Discovery.mp4"]
 
-    process_videos(video_paths[33:], connection)
+    process_videos(video_paths, connection)
 
     connection.close()
 

@@ -2,9 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-import CropVideo
-
-
 class Video:
 
     def __init__(self, path):

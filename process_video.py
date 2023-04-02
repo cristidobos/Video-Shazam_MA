@@ -14,9 +14,9 @@ from video_features import *
 from database import *
 
 # Processing of videos
-def process_videos(video_list, connection):
+    def process_videos(video_list, connection):
     total = len(video_list)
-    progress_count = 31
+    progress_count = 0
     for video in video_list:
 
         progress_count += 1

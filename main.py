@@ -16,7 +16,7 @@ def main():
     connection = create_database("database/videos.sqlite")
 
     # Create database table for storing videos
-    # create_table(connection)
+    create_table(connection)
 
     # list = ["dataset/Asteroid_Discovery.mp4"]
 

@@ -1,14 +1,17 @@
 import video_query
 import CropVideo
 from VideoReader import Video
-
+import FileReader
 def main():
     print("Please provide the path of the video query:")
+    print("example: dataset/Asteroid_Discovery")
+
     query_path = str(input())
     database = "database/videos.sqlite"
 
     # Store query as a video object
-    video = Video(query_path)
+    video = FileReader.VideoReader(query_path)
+    audio = FileReader.AudioReader(query_path)
 
     # Crop the video only to contain the video contents
     #cropped_video = CropVideo.crop_video(video)

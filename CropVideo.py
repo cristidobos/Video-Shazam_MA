@@ -83,36 +83,36 @@ def test_shit(video):
 
         frame1 = adjustContrast(frame1)
         frame2 = adjustContrast(frame2)
-        if i == 1:
-            plt.imshow(frame1, cmap='gray')
-            plt.show()
+        # if i == 1:
+            # plt.imshow(frame1, cmap='gray')
+            # plt.show()
 
         gradient = compute_frame_abs_difference(frame1, frame2)
         final_gradient += gradient
         count += 1
 
     final_gradient *= 1 / count
-    plt.imshow(gradient, cmap='gray')
-    plt.show()
+    # plt.imshow(gradient, cmap='gray')
+    # plt.show()
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 
     grad_closing = cv2.morphologyEx(final_gradient, cv2.MORPH_CLOSE, kernel, iterations=1)
-    plt.imshow(grad_closing, cmap='gray')
-    plt.show()
+    # plt.imshow(grad_closing, cmap='gray')
+    # plt.show()
 
     normalize_grad = grad_closing / np.max(grad_closing) * 255
-    plt.imshow(normalize_grad, cmap='gray')
-    plt.show()
+    # plt.imshow(normalize_grad, cmap='gray')
+    # plt.show()
     normalize_grad = remove_thin_lines(normalize_grad)
 
     # filtered_grad = np.where(normalize_grad < 100, 0, grad_closing)
     img_uint8 = cv2.convertScaleAbs(normalize_grad)
-    plt.imshow(img_uint8, cmap='gray')
-    plt.show()
+    # plt.imshow(img_uint8, cmap='gray')
+    # plt.show()
 
     _, filtered_grad = cv2.threshold(img_uint8, 100, 255, cv2.THRESH_BINARY)
-    plt.imshow(filtered_grad, cmap='gray')
-    plt.show()
+    # plt.imshow(filtered_grad, cmap='gray')
+    # plt.show()
 
     # modified_grad = remove_thin_lines(filtered_grad)
     # plt.imshow(modified_grad, cmap='gray')
@@ -123,8 +123,8 @@ def test_shit(video):
     erode = cv2.erode(filtered_grad, kernel, iterations=1)
     dilated = cv2.dilate(erode, kernel, iterations=1)
     filtered_grad = dilated
-    plt.imshow(filtered_grad, cmap='gray')
-    plt.show()
+    # plt.imshow(filtered_grad, cmap='gray')
+    # plt.show()
 
     corners = find_rectangle_corners(filtered_grad)
     # print(corners)

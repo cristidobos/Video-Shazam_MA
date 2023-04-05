@@ -8,7 +8,7 @@ import video_features
 from database import adapt_array, convert_array
 from video_features import *
 
-def find_best_match(video_descriptor, database_path):
+def find_best_match(video_descriptor, database_path, frame_rate):
     # Connect to the database
     connection = None
     try:
@@ -35,7 +35,7 @@ def find_best_match(video_descriptor, database_path):
         if len(video_descriptor['mfcc']) > len(mfcc):
             continue
         # Compare only based on color histogram
-        frame, score = sliding_window(colhist, video_descriptor['colhist'], euclidean_norm_mean)
+        frame, score = find_multiple_best(colhist, video_descriptor['colhist'], euclidean_norm_mean, 1, frame_rate)
 
         if best_score is None:
             best_score = score
@@ -70,7 +70,7 @@ def get_query_descriptor(video):
         prev_colorhist = hist
 
     descriptor = {}
-    descriptor['mfcc'] = np.array(mfccs[:-1])
+    descriptor['mfcc'] = np.array(mfccs)
     descriptor['audio'] = np.array(audiopowers)
     descriptor['colhist'] = np.array(colorhist)
     descriptor['tempdiff'] = np.array(tempdiff)
@@ -78,20 +78,49 @@ def get_query_descriptor(video):
 
     return descriptor
 
-def sliding_window(x, w, compare_func):
-    """ Slide window w over signal x.
+
+def sliding_window(x, w, compare_func, frame_rate):
+    """
+    Slide window w over signal x.
 
         compare_func should be a functions that calculates some score between w and a chunk of x
     """
-    frame = -1 # init frame
+    replace_frame = np.ones(x[0].shape)
+    frame = -1  # init frame
     wl = len(w)
+    diffs = []
     minimum = sys.maxsize
-    for i in range(len(x) - wl):
-        diff = compare_func(w, x[i:(i+wl)])
+    shift = int(frame_rate) - 1
+    i = 0
+    while i < len(x) - wl:
+        first_frame = x[i]
+        last_frame = x[i + wl - 1]
+        if np.array_equal(first_frame, replace_frame) or np.array_equal(last_frame, replace_frame):
+            i += 1
+            continue
+        diff = compare_func(w, x[i:(i + wl)])
+        diffs.append(diff)
         if diff < minimum:
             minimum = diff
             frame = i
+        i += shift
+
     return frame, minimum
+
+
+def find_multiple_best(x, w, compare_func, n, frame_rate):
+    replace_frame = np.ones(x[0].shape)
+    frames = np.zeros((n,))
+    mins = np.zeros((n,))
+    x_copy = np.array(x)
+    for i in range(n):
+        frame, minimum = sliding_window(x_copy, w, compare_func, frame_rate)
+        # best_matches.append((frame, minimum))
+        frames[i] = frame
+        mins[i] = minimum
+        x_copy[frame: frame + len(w)] = 1
+        # x_copy = np.concatenate((x_copy[:frame, :, :], x_copy[(frame + len(w)):, :, :]))
+    return frames, mins
 
 def euclidean_norm_mean(x, y):
     x = np.mean(x, axis=0)

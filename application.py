@@ -18,7 +18,7 @@ def main():
 
     print("Parsed query")
     # Get descriptor for query video
-    descriptor = video_query.get_query_descriptor(video)
+    descriptor = video_query.get_query_descriptor(video, audio)
     print("Got descriptor")
     # Find best match by comparing with all database entries
     name, score, frame = video_query.find_best_match(descriptor, database, video.fps)

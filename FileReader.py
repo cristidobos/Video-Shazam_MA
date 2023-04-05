@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import pyaudio
 import scipy.io.wavfile as wav
+from pydub import AudioSegment
 
 """
 Takes as an input the path to a video, and returns its frames and fps
@@ -14,7 +15,7 @@ output: fps and array of frames
 
 class VideoReader:
 
-    def __init__(self, path = None, fps=None, frames=None):
+    def __init__(self, path=None, fps=None, frames=None):
         self.path = path
         if fps is None or frames is None:
             # Read videos
@@ -66,12 +67,21 @@ class VideoReader:
 
 
 class AudioReader:
-    def __init__(self, path):
-        self.path = path
-        # Read audio
-        self.audio_data, self.sample_rate = self.readAudio(path)
+    def __init__(self, path, extract_from_mp4=False):
+        if not extract_from_mp4:
+            self.path = path
+            # Read audio
+            self.audio_data, self.sample_rate = self.read_audio(path)
+        else:
+            self.path = path
+            self.audio_data, self.sample_rate = self.extract_audio_from_video(path)
 
-    def readAudio(self, path):
+    @staticmethod
+    def read_audio(path):
+        if not path.endswith(".wav"):
+            sample_rate = None
+            audio_data = None
+            return audio_data, sample_rate
         # audiopath = '../resource/lib/publicdata/Videos/BlackKnight.wav'
         sample_rate, audio_data = wav.read(path)
         audio_data = audio_data.astype('float32') / 32767.0
@@ -95,6 +105,13 @@ class AudioReader:
         stream.stop_stream()
         stream.close()
         p.terminate()
+
+    @staticmethod
+    def extract_audio_from_video(path_video):
+        audio = AudioSegment.from_file("dataset/Asteroid_Discovery.mp4", format="mp4")
+        audio_data = np.array(audio.get_array_of_samples())
+        sample_rate = audio.frame_rate
+        return audio_data, sample_rate
 
 
 path = "training/video1.mp4"

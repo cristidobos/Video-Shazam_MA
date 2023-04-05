@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-import VideoReader
+import FileReader
 
 
 def crop_video(video):
@@ -22,7 +22,7 @@ def crop_video(video):
         cropped_frames.append(cropped_frame)
 
     # Create a new video object with the cropped frames
-    cropped_video = type(video)(fps=fps, frames=np.array(cropped_frames))
+    cropped_video = FileReader.VideoReader(fps=fps, frames=np.array(cropped_frames))
 
     return cropped_video
 
@@ -72,6 +72,8 @@ def compute_frame_abs_difference(prev_frame, curr_frame):
 
 
 def test_shit(video):
+    plt.imshow(video.frames[0])
+    plt.show()
     # old_gradient = compute_frame_gradient(adjustContrast(video.frame[0]), adjustContrast(video.frame[1]))
     final_gradient = np.zeros((len(video.frames[0]), len(video.frames[0][0])))
 

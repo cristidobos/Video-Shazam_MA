@@ -84,6 +84,8 @@ path = "training/video5.mp4"
 if __name__ == '__main__':
     video = Video(path)
     cropped = CropVideo.crop_video(video)
+    plt.imshow(cropped.frames[0])
+    plt.show()
     # CropVideo.test_shit(video)
     # cropped2 = CropVideo.crop_video(cropped)
     # CropVideo.play_video(cropped)

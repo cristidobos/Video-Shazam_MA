@@ -37,7 +37,7 @@ def find_best_match(video_descriptor, database_path, frame_rate):
         # Compare only based on color histogram
         # frame, score = find_multiple_best(colhist, video_descriptor['colhist'], euclidean_norm_mean, 1, frame_rate)
 
-        frame, score = find_multiple_best(mfcc, video_descriptor['mfccs'], euclidean_norm_mean, 1)
+        frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'][0], euclidean_norm_mean, 1, frame_rate)
 
         if best_score is None:
             best_score = score
@@ -56,7 +56,7 @@ def get_query_descriptor(video, audio):
     if len(video.frames) == 0:
         raise Exception("Video length is 0")
 
-    samples_per_audio_frame = int((len(video.frames) / video.fps) * audio.sample_rate)
+    samples_per_audio_frame = int((1 / video.fps) * audio.sample_rate)
 
     counter = 0
     colorhist = []
@@ -73,11 +73,12 @@ def get_query_descriptor(video, audio):
         tempdiff.append(temporal_diff(prev_frame, frame, 10))
         colorhistdiffs.append(colorhist_diff(prev_colorhist, hist))
         prev_colorhist = hist
+        if counter + samples_per_audio_frame < len(audio.audio_data):
+            audio_sample = audio.audio_data[counter : counter + samples_per_audio_frame]
 
-        audio_sample = audio.audio_data[counter : counter + samples_per_audio_frame]
-
-        mfcc_frame = extract_mfcc(audio_sample, audio.sample_rate)
-        mfccs.append(mfcc_frame)
+            counter += samples_per_audio_frame
+            ceps, mspec, spec = extract_mfcc(audio_sample, audio.sample_rate)
+            mfccs.append(ceps)
 
 
     descriptor = {}
@@ -119,7 +120,7 @@ def sliding_window(x, w, compare_func, frame_rate):
     return frame, minimum
 
 
-def find_multiple_best(x, w, compare_func, n, frame_rate=None):
+def find_multiple_best(x, w, compare_func, n, frame_rate):
     replace_frame = np.ones(x[0].shape)
     frames = np.zeros((n,))
     mins = np.zeros((n,))

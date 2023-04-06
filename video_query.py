@@ -48,9 +48,9 @@ def find_best_match(video_descriptor, database_path, frame_rate):
         query_element_feature = np.hstack((pad1_query_element, pad2_query_element))
         # frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'], euclidean_norm_mean, 1, frame_rate)
 
-        frames_and_scores = find_multiple_best(database_element_feature, query_element_feature, euclidean_norm_mean, 3,
+        frames_and_scores = find_multiple_best(database_element_feature, query_element_feature, euclidean_norm_mean, 1,
                                                frame_rate)
-        frame, score = frames_and_scores[0]
+        frame, score = frames_and_scores
 
         if best_score is None:
             best_score = score

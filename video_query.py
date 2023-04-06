@@ -105,7 +105,7 @@ def sliding_window(x, w, compare_func, frame_rate):
     wl = len(w)
     diffs = []
     minimum = sys.maxsize
-    shift = int(frame_rate) - 1
+    shift = 30
     i = 0
     while i < len(x) - wl:
         first_frame = x[i]
@@ -128,21 +128,19 @@ def find_multiple_best(x, w, compare_func, n, frame_rate):
     frames = np.zeros((n,))
     mins = np.zeros((n,))
     x_copy = np.array(x)
-    for i in range(n):
-        frame, minimum = sliding_window(x_copy, w, compare_func, frame_rate)
-        # best_matches.append((frame, minimum))
-        frames[i] = frame
-        mins[i] = minimum
-        x_copy[frame: frame + len(w)] = 1
-        # x_copy = np.concatenate((x_copy[:frame, :, :], x_copy[(frame + len(w)):, :, :]))
-    return frames, mins
+
+    frame, minimum = sliding_window(x_copy, w, compare_func, frame_rate)
+    # best_matches.append((frame, minimum))
+    #frames[i] = frame
+    #mins[i] = minimum
+    #x_copy[frame: frame + len(w)] = 1
+    # x_copy = np.concatenate((x_copy[:frame, :, :], x_copy[(frame + len(w)):, :, :]))
+    return frame, minimum
 
 
 def euclidean_norm_mean(x, y):
     x = np.mean(x, axis=0)
-    y_m = 0
-    if len(y) > 0:
-        y_m = np.mean(y, axis=0)
+    y = np.mean(y, axis=0)
     return np.linalg.norm(x - y)
 
 

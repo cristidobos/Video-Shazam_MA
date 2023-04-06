@@ -9,7 +9,7 @@ from database import adapt_array, convert_array
 from video_features import *
 
 
-def find_best_match(video_descriptor, database_path, frame_rate):
+def find_best_match(video_descriptor, database_path):
     # Connect to the database
     connection = None
     try:
@@ -37,7 +37,8 @@ def find_best_match(video_descriptor, database_path, frame_rate):
                 video_descriptor['mfcc'][0][0]) != len(mfcc[0][0]):
             continue
 
-        # mfcc += np.zeros((len(mfcc[0]), len(mfcc[0][0])))
+        # Compare only based on color histogram
+        # frame, score = find_multiple_best(colhist, video_descriptor['colhist'], euclidean_norm_mean, 1, frame_rate)
 
         pad1_database_element, pad2_database_element = pad_arrays(mfcc, colhist)
         database_element_feature = np.hstack((pad1_database_element, pad2_database_element))
@@ -104,7 +105,7 @@ def get_query_descriptor(video, audio):
     return descriptor
 
 
-def sliding_window(x, w, compare_func, frame_rate):
+def sliding_window(x, w, compare_func):
     """
     Slide window w over signal x.
 
@@ -115,10 +116,7 @@ def sliding_window(x, w, compare_func, frame_rate):
     wl = len(w)
     diffs = []
     minimum = sys.maxsize
-
-    # shift = int(frame_rate) - 1
-    shift = 1
-
+    shift = 10
     i = 0
     while i < len(x) - wl:
         first_frame = x[i]
@@ -136,13 +134,13 @@ def sliding_window(x, w, compare_func, frame_rate):
     return frame, minimum
 
 
-def find_multiple_best(x, w, compare_func, n, frame_rate):
+def find_multiple_best(x, w, compare_func, n):
     replace_frame = np.ones(x[0].shape)
     frames = np.zeros((n,))
     mins = np.zeros((n,))
     x_copy = np.array(x)
 
-    frame, minimum = sliding_window(x_copy, w, compare_func, frame_rate)
+    frame, minimum = sliding_window(x_copy, w, compare_func)
     # best_matches.append((frame, minimum))
     #frames[i] = frame
     #mins[i] = minimum
@@ -159,16 +157,3 @@ def euclidean_norm_mean(x, y):
 
 def euclidean_norm(x, y):
     return np.linalg.norm(x - y)
-
-
-def pad_arrays(arr1, arr2):
-    max_shape = np.maximum(arr1.shape, arr2.shape)
-    padded_arr1 = np.pad(arr1, ((0, max_shape[0] - arr1.shape[0]),
-                                (0, max_shape[1] - arr1.shape[1]),
-                                (0, max_shape[2] - arr1.shape[2])),
-                         mode='constant', constant_values=0)
-    padded_arr2 = np.pad(arr2, ((0, max_shape[0] - arr2.shape[0]),
-                                (0, max_shape[1] - arr2.shape[1]),
-                                (0, max_shape[2] - arr2.shape[2])),
-                         mode='constant', constant_values=0)
-    return padded_arr1, padded_arr2

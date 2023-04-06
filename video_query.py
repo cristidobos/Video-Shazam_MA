@@ -9,7 +9,7 @@ from database import adapt_array, convert_array
 from video_features import *
 
 
-def find_best_match(video_descriptor, database_path, frame_rate):
+def find_best_match(video_descriptor, database_path):
     # Connect to the database
     connection = None
     try:
@@ -40,7 +40,7 @@ def find_best_match(video_descriptor, database_path, frame_rate):
         # Compare only based on color histogram
         # frame, score = find_multiple_best(colhist, video_descriptor['colhist'], euclidean_norm_mean, 1, frame_rate)
 
-        frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'], euclidean_norm_mean, 1, frame_rate)
+        frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'], euclidean_norm_mean, 1)
 
         if best_score is None:
             best_score = score
@@ -94,7 +94,7 @@ def get_query_descriptor(video, audio):
     return descriptor
 
 
-def sliding_window(x, w, compare_func, frame_rate):
+def sliding_window(x, w, compare_func):
     """
     Slide window w over signal x.
 
@@ -105,7 +105,7 @@ def sliding_window(x, w, compare_func, frame_rate):
     wl = len(w)
     diffs = []
     minimum = sys.maxsize
-    shift = 30
+    shift = 10
     i = 0
     while i < len(x) - wl:
         first_frame = x[i]
@@ -123,13 +123,13 @@ def sliding_window(x, w, compare_func, frame_rate):
     return frame, minimum
 
 
-def find_multiple_best(x, w, compare_func, n, frame_rate):
+def find_multiple_best(x, w, compare_func, n):
     replace_frame = np.ones(x[0].shape)
     frames = np.zeros((n,))
     mins = np.zeros((n,))
     x_copy = np.array(x)
 
-    frame, minimum = sliding_window(x_copy, w, compare_func, frame_rate)
+    frame, minimum = sliding_window(x_copy, w, compare_func)
     # best_matches.append((frame, minimum))
     #frames[i] = frame
     #mins[i] = minimum

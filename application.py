@@ -2,7 +2,7 @@ import video_query
 # import CropVideo
 # from VideoReader import Video
 import FileReader
-
+from moviepy.editor import *
 
 def main():
     print("Please provide the path of the video query:")
@@ -23,10 +23,9 @@ def main():
     descriptor = video_query.get_query_descriptor(video, audio)
     print("Got descriptor")
     # Find best match by comparing with all database entries
-    name, score, frame = video_query.find_best_match(descriptor, database, audio.sample_rate)
+    name, score, frame = video_query.find_best_match(descriptor, database)
 
     print("Best match was found for video {} with a score of {} at frame {}".format(name, score, frame))
-
 
 if __name__ == '__main__':
     main()

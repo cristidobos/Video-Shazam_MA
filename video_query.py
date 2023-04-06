@@ -44,13 +44,12 @@ def find_best_match(video_descriptor, database_path):
         database_element_feature = np.hstack((pad1_database_element, pad2_database_element))
 
         # I'm padding both features to the same shape so that I can stack them together
-        pad1_query_element , pad2_query_element = pad_arrays(video_descriptor['mfcc'], video_descriptor['colhist'])
+        pad1_query_element, pad2_query_element = pad_arrays(video_descriptor['mfcc'], video_descriptor['colhist'])
 
         query_element_feature = np.hstack((pad1_query_element, pad2_query_element))
         # frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'], euclidean_norm_mean, 1, frame_rate)
 
-        frames_and_scores = find_multiple_best(database_element_feature, query_element_feature, euclidean_norm_mean, 1,
-                                               frame_rate)
+        frames_and_scores = find_multiple_best(database_element_feature, query_element_feature, euclidean_norm_mean, 1)
         frame, score = frames_and_scores
 
         if best_score is None:
@@ -142,9 +141,9 @@ def find_multiple_best(x, w, compare_func, n):
 
     frame, minimum = sliding_window(x_copy, w, compare_func)
     # best_matches.append((frame, minimum))
-    #frames[i] = frame
-    #mins[i] = minimum
-    #x_copy[frame: frame + len(w)] = 1
+    # frames[i] = frame
+    # mins[i] = minimum
+    # x_copy[frame: frame + len(w)] = 1
     # x_copy = np.concatenate((x_copy[:frame, :, :], x_copy[(frame + len(w)):, :, :]))
     return frame, minimum
 
@@ -157,3 +156,16 @@ def euclidean_norm_mean(x, y):
 
 def euclidean_norm(x, y):
     return np.linalg.norm(x - y)
+
+
+def pad_arrays(arr1, arr2):
+    max_shape = np.maximum(arr1.shape, arr2.shape)
+    padded_arr1 = np.pad(arr1, ((0, max_shape[0] - arr1.shape[0]),
+                                (0, max_shape[1] - arr1.shape[1]),
+                                (0, max_shape[2] - arr1.shape[2])),
+                         mode='constant', constant_values=0)
+    padded_arr2 = np.pad(arr2, ((0, max_shape[0] - arr2.shape[0]),
+                                (0, max_shape[1] - arr2.shape[1]),
+                                (0, max_shape[2] - arr2.shape[2])),
+                         mode='constant', constant_values=0)
+    return padded_arr1, padded_arr2

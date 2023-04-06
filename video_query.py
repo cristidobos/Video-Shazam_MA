@@ -8,6 +8,7 @@ import video_features
 from database import adapt_array, convert_array
 from video_features import *
 
+
 def find_best_match(video_descriptor, database_path, frame_rate):
     # Connect to the database
     connection = None
@@ -32,12 +33,14 @@ def find_best_match(video_descriptor, database_path, frame_rate):
     best_score = None
     # Iterate over all videos
     for (_, name, mfcc, audio, colhist, tempdiff, chdiff) in videos:
-        if len(video_descriptor['mfcc']) > len(mfcc):
+        if len(video_descriptor['mfcc']) > len(mfcc) or len(video_descriptor['mfcc'][0]) != len(mfcc[0]) or len(
+                video_descriptor['mfcc'][0][0]) != len(mfcc[0][0]):
             continue
+
         # Compare only based on color histogram
         # frame, score = find_multiple_best(colhist, video_descriptor['colhist'], euclidean_norm_mean, 1, frame_rate)
 
-        frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'][0], euclidean_norm_mean, 1, frame_rate)
+        frame, score = find_multiple_best(mfcc, video_descriptor['mfcc'], euclidean_norm_mean, 1, frame_rate)
 
         if best_score is None:
             best_score = score
@@ -74,12 +77,12 @@ def get_query_descriptor(video, audio):
         colorhistdiffs.append(colorhist_diff(prev_colorhist, hist))
         prev_colorhist = hist
         if counter + samples_per_audio_frame < len(audio.audio_data):
-            audio_sample = audio.audio_data[counter : counter + samples_per_audio_frame]
-
-            counter += samples_per_audio_frame
+            audio_sample = audio.audio_data[counter: counter + samples_per_audio_frame]
             ceps, mspec, spec = extract_mfcc(audio_sample, audio.sample_rate)
-            mfccs.append(ceps)
+            mfccs.append(ceps[:-1, :])
+            counter += samples_per_audio_frame
 
+    # mfccs = ceps
 
     descriptor = {}
     descriptor['mfcc'] = np.array(mfccs)
@@ -134,13 +137,14 @@ def find_multiple_best(x, w, compare_func, n, frame_rate):
         # x_copy = np.concatenate((x_copy[:frame, :, :], x_copy[(frame + len(w)):, :, :]))
     return frames, mins
 
+
 def euclidean_norm_mean(x, y):
     x = np.mean(x, axis=0)
     y_m = 0
     if len(y) > 0:
         y_m = np.mean(y, axis=0)
-    return np.linalg.norm(x-y)
+    return np.linalg.norm(x - y)
+
 
 def euclidean_norm(x, y):
-    return np.linalg.norm(x-y)
-
+    return np.linalg.norm(x - y)
